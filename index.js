@@ -103,7 +103,7 @@ function orderProductById(searchId) {
     //let contentPackage = []
 
     return new Promise(function (resolve, reject) {
-        productModel.findOneAndUpdate({id : searchId}, {$inc:{orders_counter :1}} ,  (err,doc) => {
+        productModel.findOneAndUpdate({_id : searchId}, {$inc:{orders_counter :1}} ,  (err,doc) => {
                 if (err) { reject('Erreur')}
                 else { resolve(doc) };
         })
@@ -123,10 +123,13 @@ function orderProductById(searchId) {
 
 
 
-function addOrder(product, user) {
+function addOrder(productId, userId) {
+
     //let data = { id: "3", name: "Produit 3", description: "produit 3", USD_price: 14, EUR_price: 14, file_link: 'file 3', creation_date: "12/12/2018", orders_counter: 14}
     let new_order = {
-        product
+        product : productId, 
+        user : userId,  
+        price : 333   // TODO FIND POUR RECUP DU PRODUIT
     }
     return new Promise( (resolve, reject) => {
         orderModel.create(new_order,(err, ord) => {
@@ -135,6 +138,7 @@ function addOrder(product, user) {
                  reject('Erreur commande')
             }
             else {
+                console.log(ord)
                 resolve(ord)
             }
         });

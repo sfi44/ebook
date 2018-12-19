@@ -1,7 +1,7 @@
 
 <ul>
 <% for(var i=0; i < data.length; i++) { %>
-     <li><%= data[i].id %> - <%= data[i].description %> - <%= data[i].orders_counter %><button onclick='addProduct(<%= data[i].id %>)'>Add</button><br>
+     <li><%= data[i].id %> - <%= data[i].description %> - <%= data[i].orders_counter %><button onclick='addProduct("<%= data[i]._id %>")'>Add</button><br>
 <% } %>
 </ul>
 
