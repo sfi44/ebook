@@ -1,0 +1,19 @@
+<ul>
+<% for(var i=0; i < data.length; i++) { %>
+     <li><%= data[i].id %> - <%= data[i].description %> - <%= data[i].orders_counter %><button onclick='addProduct(<%= data[i].id %>)'>Add</button><br>
+<% } %>
+</ul>
+
+
+<script>
+function addProduct(id) {
+  fetch('/add/'+id)
+    .then(function(response) {
+      console.log(response)
+      alert('Ajout sur ', id, response);
+  })
+}
+</script>
+
+
+
