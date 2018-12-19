@@ -61,14 +61,9 @@ app.get('/add/:id', async function(req, res) {
     let idProduct = req.params.id
     console.log('calling');
     var prod = await orderProductById(idProduct);
-    var ord = await addOrder(prod, null);   // TODO Traiter le user
+    var ord = await addOrder(prod, "5c1a6a6466a17e4cfc63693e");   // TODO Traiter le user
     console.log(ord)
     res.send(ord)
-    // orderProductById(idProduct)
-    //    .then( (doc) => {
-    //         console.log(doc)
-    //         res.send(doc)
-    //     })
 })
 
 app.get('/getUserOrders/:idUser', function(req, res) {
@@ -155,6 +150,15 @@ function getUserOrders(aUserId) {
 }
 
 
+function AddOneUserInCollection () {
+    let data = { email : "sf44@email.com", password : ""}
+    productModel.create(data,(err,user) => {
+        if (err) {console.log('erreur create')}
+        else console.log('user', user)
+    });     
+}
+
+// AddOneUserInCollection()
 
 // function AddOneProductInCollection (data) {
 //     //let data = { id: "3", name: "Produit 3", description: "produit 3", USD_price: 14, EUR_price: 14, file_link: 'file 3', creation_date: "12/12/2018", orders_counter: 14}
