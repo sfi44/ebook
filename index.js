@@ -43,6 +43,7 @@ mongoose.connection.on('error', function (err) {console.log('Mongoose default co
 
 let productModel = require(`${__dirname}/model/product.js`);
 let orderModel = require(`${__dirname}/model/order.js`);
+let userModel = require(`${__dirname}/model/user.js`);
 
 // Getion du motor de template
 app.set('view engine', 'ejs');
@@ -61,7 +62,7 @@ app.get('/add/:id', async function(req, res) {
     let idProduct = req.params.id
     console.log('calling');
     var prod = await orderProductById(idProduct);
-    var ord = await addOrder(prod, "5c1a6a6466a17e4cfc63693e");   // TODO Traiter le user
+    var ord = await addOrder(prod, "5c1a6b1b545ff84de0f9a0de");   // TODO Traiter le user
     console.log(ord)
     res.send(ord)
 })
@@ -152,13 +153,13 @@ function getUserOrders(aUserId) {
 
 function AddOneUserInCollection () {
     let data = { email : "sf44@email.com", password : ""}
-    productModel.create(data,(err,user) => {
+    userModel.create(data,(err,user) => {
         if (err) {console.log('erreur create')}
         else console.log('user', user)
     });     
 }
 
-// AddOneUserInCollection()
+//AddOneUserInCollection()
 
 // function AddOneProductInCollection (data) {
 //     //let data = { id: "3", name: "Produit 3", description: "produit 3", USD_price: 14, EUR_price: 14, file_link: 'file 3', creation_date: "12/12/2018", orders_counter: 14}
