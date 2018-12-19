@@ -1,6 +1,39 @@
 let fs = require('fs')
 let ejs = require('ejs')
 
+let express = require('express')
+let app = express()
+
+
+var passport = require('passport')
+  , LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy(
+    function(username, password, done) {
+      User.findOne({ username: username }, function (err, user) {
+        if (err) { return done(err); }
+        if (!user) {
+          return done(null, false, { message: 'Incorrect username.' });
+        }
+        if (!user.validPassword(password)) {
+          return done(null, false, { message: 'Incorrect password.' });
+        }
+        return done(null, user); 
+      });
+    }
+ ));
+
+//  app.configure(function() {
+//     app.use(express.static('public'));
+//     app.use(express.cookieParser());
+//     app.use(express.bodyParser());
+//     app.use(express.session({ secret: 'keyboard cat' }));
+//     app.use(passport.initialize());
+//     app.use(passport.session());
+//     app.use(app.router);
+//   });
+
+
 //
 const mongoose = require('mongoose')
 mongoose.connect('mongodb://localhost:27017/database')
@@ -9,34 +42,128 @@ mongoose.connection.on('error', function (err) {console.log('Mongoose default co
 
 
 let productModel = require(`${__dirname}/model/product.js`);
-
-const express = require('express')
-const app = express()
+let orderModel = require(`${__dirname}/model/order.js`);
 
 // Getion du motor de template
 app.set('view engine', 'ejs');
 
 // Gestion du routing
 app.get('/', function (req, res) {
-    readProducts(function (products) {
+    console.log ('liste produits')
+    getProducts().then( (products) => {
         //let data = JSON.parse(products)
         res.render('index', {"data" : products} );
     })
 })
 
-app.get('/add/:id', function(req, res) {
-    console.log(req.params.id);
-    orderProductById(req.params.id, function (doc) {
-        console.log(doc)
-        res.send(doc);
-    });
+app.get('/add/:id', async function(req, res) {
+    console.log(req.params.id)
+    let idProduct = req.params.id
+    console.log('calling');
+    var prod = await orderProductById(idProduct);
+    var ord = await addOrder(prod, null);   // TODO Traiter le user
+    console.log(ord)
+    res.send(ord)
+    // orderProductById(idProduct)
+    //    .then( (doc) => {
+    //         console.log(doc)
+    //         res.send(doc)
+    //     })
 })
+
+app.get('/getUserOrders/:idUser', function(req, res) {
+    console.log(req.params.idUser)
+    let idUser = req.params.id
+    getUserOrders(idUser)
+       .then( (doc) => {
+            console.log(doc)
+            res.send(doc)
+        })
+})
+
 
 // Lancement du serveur
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!')
 })
 
+
+//==== PRODUCTS
+
+function getProducts() {
+    return new Promise( (resolve, reject) => {
+        productModel.find({},  (err, docs) => {
+            if (err) { reject('Erreur')}
+            else {resolve(docs) };
+        })
+    })
+}
+
+function orderProductById(searchId) {
+    //let contentPackage = []
+
+    return new Promise(function (resolve, reject) {
+        productModel.findOneAndUpdate({id : searchId}, {$inc:{orders_counter :1}} ,  (err,doc) => {
+                if (err) { reject('Erreur')}
+                else { resolve(doc) };
+        })
+    })
+}
+
+
+//==== ORDER
+
+// async function createOrder(idProd) {
+//     console.log('calling');
+//     var prod = await orderProductById(idProd);
+//     var ord = await addOrder(prod, null);   // TODO Traiter le user
+//     console.log('commande ', ord);
+//     return ord;
+// }
+
+
+
+function addOrder(product, user) {
+    //let data = { id: "3", name: "Produit 3", description: "produit 3", USD_price: 14, EUR_price: 14, file_link: 'file 3', creation_date: "12/12/2018", orders_counter: 14}
+    let new_order = {
+        product
+    }
+    return new Promise( (resolve, reject) => {
+        orderModel.create(new_order,(err, ord) => {
+            if (err) {
+                console.log('erreur create');
+                 reject('Erreur commande')
+            }
+            else {
+                resolve(ord)
+            }
+        });
+    })     
+}
+
+function getUserOrders(aUserId) {
+    return new Promise( (resolve, reject) => {
+        orderModel.find({user: aUserId},  (err, docs) => {
+            if (err) { reject('Erreur')}
+            else {resolve(docs) };
+        })
+    })
+}
+
+
+
+// function AddOneProductInCollection (data) {
+//     //let data = { id: "3", name: "Produit 3", description: "produit 3", USD_price: 14, EUR_price: 14, file_link: 'file 3', creation_date: "12/12/2018", orders_counter: 14}
+//     var prod = productModel.create(data,(err) => {
+//         if (err) {console.log('erreur create')}
+//     });     
+// }
+
+
+// orderProductById(req.params.id, function (doc) {
+//     console.log(doc)
+//     res.send(doc);
+// });
 
 // let readline = require('readline');
 // var rl = readline.createInterface(
@@ -55,26 +182,12 @@ app.listen(3000, function () {
 //     }
 // })
 
-
-function AddOneProductInCollection (data) {
-    //let data = { id: "3", name: "Produit 3", description: "produit 3", USD_price: 14, EUR_price: 14, file_link: 'file 3', creation_date: "12/12/2018", orders_counter: 14}
-    var prod = productModel.create(data,(err) => {
-        if (err) {console.log('erreur create')}
-    });     
-}
-
-function readProducts(callback) {
-        productModel.find({}, function (err, docs) {
-            //console.log(docs)
-            callback(docs)
-        })
-
     // In file JSON
     // fs.readFile(`${__dirname}/product.json`, 'utf8', (err,file) => {
     //     if (err) throw err;
     //     callback(file)
     // })
-}
+//}
 
 // function getAllProducts() {
 //     let contentPackage = []
@@ -101,14 +214,10 @@ function readProducts(callback) {
 //     })
 // }
 
-
-function orderProductById(searchId ,callback) {
-    let contentPackage = []
-
-    productModel.findOneAndUpdate({id : searchId}, {$inc:{orders_counter :1}} ,  (err,doc) => {
-        if (err) {console.log('erreur')}
-        else callback(doc);
-    })
+    // productModel.findOneAndUpdate({id : searchId}, {$inc:{orders_counter :1}} ,  (err,doc) => {
+    //     if (err) {console.log('erreur')}
+    //     else callback(doc);
+    // })
 
 
     // readFileProducts(displayProducts)
@@ -131,7 +240,6 @@ function orderProductById(searchId ,callback) {
     //             console.log(`Commande terminée : voici votre fichier : [${product.file_link}]`);
     //     });
     // })
-}
 
 
 // loadProductCollection();
