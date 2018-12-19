@@ -41,9 +41,9 @@ mongoose.connection.on('connected', function () {console.log('Mongoose default c
 mongoose.connection.on('error', function (err) {console.log('Mongoose default connection error' + err)})
 
 
-let productModel = require(`${__dirname}/model/product.js`)
-let orderModel = require(`${__dirname}/model/order.js`)
-let userModel = require(`${__dirname}/model/user.js`)
+// let productModel = require(`${__dirname}/model/product.js`)
+// let orderModel = require(`${__dirname}/model/order.js`)
+// let userModel = require(`${__dirname}/model/user.js`)
 
 let productController = require('./controller/productController')
 let orderController = require('./controller/orderController')
