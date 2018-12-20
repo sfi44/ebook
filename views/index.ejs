@@ -1,10 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>eBook</title>
+<link rel="stylesheet" type="text/css" href="index.css">
+</head>
 
+<body>
 <ul>
 <% for(var i=0; i < data.length; i++) { %>
      <li><%= data[i].id %> - <%= data[i].description %> - <%= data[i].orders_counter %><button onclick='addProduct("<%= data[i]._id %>")'>Add</button><br>
 <% } %>
 </ul>
-
 
 <script>
 function addProduct(id) {
@@ -15,6 +21,11 @@ function addProduct(id) {
   })
 }
 </script>
+
+
+</body>
+
+
 
 
 
