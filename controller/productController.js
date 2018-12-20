@@ -1,4 +1,4 @@
-let productModel = require(`${__dirname}/model/product.js`);
+let productModel = require(`../model/product.js`);
 
 let ProductController = 
  {

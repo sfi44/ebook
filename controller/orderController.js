@@ -1,6 +1,6 @@
-let orderModel = require(`${__dirname}/model/order.js`);
+let orderModel = require(`../model/order.js`);
 
-let ProductController = 
+let OrderController = 
  {
     getOrders : function () {
         return new Promise( (resolve, reject) => {

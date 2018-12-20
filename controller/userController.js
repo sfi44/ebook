@@ -1,4 +1,4 @@
-let userModel = require(`${__dirname}/model/user.js`);
+let userModel = require(`../model/user.js`);
 
 let UserController = {
     
