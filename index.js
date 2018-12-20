@@ -20,8 +20,8 @@ let userModel = require(`${__dirname}/model/user.js`)
 app.use(express.static('public'))
 app.use(methodOverride())
 app.use(router)
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(require('express-session')({
     secret: 'keyboard cat',
