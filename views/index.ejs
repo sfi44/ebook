@@ -6,23 +6,31 @@
 </head>
 
 <body>
-<ul>
-<% for(var i=0; i < data.length; i++) { %>
-     <li><%= data[i].id %> - <%= data[i].description %> - <%= data[i].orders_counter %><button onclick='addProduct("<%= data[i]._id %>")'>Add</button><br>
+<% if (!user) { %>
+  <a href="/login"> Login</a>
+  <br>
+  <a href="/register"> Register </a>
+<% } else  {%>
+    <p> You are currently logged in as #{user.email}</p>
+
+    <ul>
+    <% for(var i=0; i < data.length; i++) { %>
+         <li><%= data[i].id %> - <%= data[i].description %> - <%= data[i].orders_counter %><button onclick='addProduct("<%= data[i]._id %>")'>Add</button><br>
+    <% } %>
+    </ul>
+
+    <a href="/logout">Logout</a>
+
+    <script>
+    function addProduct(id) {
+      fetch('/add/'+id)
+        .then(function(response) {
+          console.log(response)
+          alert('Ajout sur ', id, response);
+      })
+    }
+    </script>
 <% } %>
-</ul>
-
-<script>
-function addProduct(id) {
-  fetch('/add/'+id)
-    .then(function(response) {
-      console.log(response)
-      alert('Ajout sur ', id, response);
-  })
-}
-</script>
-
-
 </body>
 
 

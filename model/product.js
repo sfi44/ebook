@@ -9,7 +9,7 @@ var schema = new mongoose.Schema(
     EUR_price: 'Number', 
     file_link: 'String', 
     creation_date: 'String', 
-    orders_counter: "Number" })
+    orders_counter: 'Number' })
 
 var Product = mongoose.model('Product', schema)
 

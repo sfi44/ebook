@@ -1,50 +1,48 @@
-let fs = require('fs')
-let ejs = require('ejs')
+const fs = require('fs')
+const ejs = require('ejs')
+const mongoose = require('mongoose')
+const bodyParser = require('body-parser')
+const methodOverride = require('method-override')
+const restify = require('express-restify-mongoose')
+const express = require('express')
+const router = express.Router()
 
-let express = require('express')
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const cookieParser = require('cookie-parser');
+
 let app = express()
 
-app.use(express.static('public'));
+let productModel = require(`${__dirname}/model/product.js`)
+// let orderModel = require(`${__dirname}/model/order.js`)
+let userModel = require(`${__dirname}/model/user.js`)
 
-var passport = require('passport')
-  , LocalStrategy = require('passport-local').Strategy;
-
-passport.use(new LocalStrategy(
-    function(username, password, done) {
-      User.findOne({ username: username }, function (err, user) {
-        if (err) { return done(err); }
-        if (!user) {
-          return done(null, false, { message: 'Incorrect username.' });
-        }
-        if (!user.validPassword(password)) {
-          return done(null, false, { message: 'Incorrect password.' });
-        }
-        return done(null, user); 
-      });
-    }
-));
-
-//  app.configure(function() {
-//     app.use(express.static('public'));
-//     app.use(express.cookieParser());
-//     app.use(express.bodyParser());
-//     app.use(express.session({ secret: 'keyboard cat' }));
-//     app.use(passport.initialize());
-//     app.use(passport.session());
-//     app.use(app.router);
-//   });
+app.use(express.static('public'))
+app.use(methodOverride())
+app.use(router)
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(require('express-session')({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: false
+}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 
-//
-const mongoose = require('mongoose')
+//var Account = require('./models/user');
+passport.use(new LocalStrategy(userModel.authenticate()));
+passport.serializeUser(userModel.serializeUser());
+passport.deserializeUser(userModel.deserializeUser());
+
 mongoose.connect('mongodb://localhost:27017/database')
 mongoose.connection.on('connected', function () {console.log('Mongoose default connection open to db')}) 
 mongoose.connection.on('error', function (err) {console.log('Mongoose default connection error' + err)})
 
-
-// let productModel = require(`${__dirname}/model/product.js`)
-// let orderModel = require(`${__dirname}/model/order.js`)
-// let userModel = require(`${__dirname}/model/user.js`)
+restify.serve(router, productModel)
+restify.serve(router, userModel)
 
 let productController = require('./controller/productController')
 let orderController = require('./controller/orderController')
@@ -54,15 +52,45 @@ let userController = require('./controller/userController')
 app.set('view engine', 'ejs');
 
 // Gestion du routing
-app.get('/', function (req, res) {
+router.get('/', function (req, res) {
+  debugger;
     console.log ('liste produits')
     productController.getProducts().then( (products) => {
         //let data = JSON.parse(products)
-        res.render('index', {"data" : products} );
+        res.render('index', {data: products, user : req.user} );
     })
 })
 
-app.get('/add/:id', async function(req, res) {
+router.get('/register', function(req, res) {
+  res.render('register', { });
+});
+
+router.post('/register', function(req, res) {
+  Account.register(new Account({ username : req.body.email }), req.body.password, function(err, account) {
+      if (err) {
+          return res.render('register', { account : account });
+      }
+
+      passport.authenticate('local')(req, res, function () {
+          res.redirect('/');
+      });
+  });
+});
+
+router.get('/login', function(req, res) {
+  res.render('login', { user : req.user });
+});
+
+router.post('/login', passport.authenticate('local'), function(req, res) {
+  res.redirect('/');
+});
+
+router.get('/logout', function(req, res) {
+  req.logout();
+  res.redirect('/');
+});
+
+router.get('/add/:id', async function(req, res) {
     console.log(req.params.id)
     let idProduct = req.params.id
     console.log('calling');
@@ -72,7 +100,7 @@ app.get('/add/:id', async function(req, res) {
     res.send(ord)
 })
 
-app.get('/getUserOrders/:idUser', function(req, res) {
+router.get('/getUserOrders/:idUser', function(req, res) {
     console.log(req.params.idUser)
     let idUser = req.params.id
     orderController.getUserOrders(idUser)
