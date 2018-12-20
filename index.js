@@ -31,8 +31,6 @@ app.use(require('express-session')({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
-//var Account = require('./models/user');
 passport.use(new LocalStrategy(userModel.authenticate()));
 passport.serializeUser(userModel.serializeUser());
 passport.deserializeUser(userModel.deserializeUser());
@@ -66,9 +64,9 @@ router.get('/register', function(req, res) {
 });
 
 router.post('/register', function(req, res) {
-  Account.register(new Account({ username : req.body.email }), req.body.password, function(err, account) {
+  userModel.register(new userModel({ email : req.body.email }), req.body.password, function(err, user) {
       if (err) {
-          return res.render('register', { account : account });
+          return res.render('register', { user : user });
       }
 
       passport.authenticate('local')(req, res, function () {
