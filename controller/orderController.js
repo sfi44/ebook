@@ -2,7 +2,7 @@ let orderModel = require(`${__dirname}/model/order.js`);
 
 let ProductController = 
  {
-    getOrders = function () {
+    getOrders : function () {
         return new Promise( (resolve, reject) => {
             orderModel.find({},  (err, ords) => {
                 if (err) { reject('Erreur')}
@@ -11,7 +11,7 @@ let ProductController =
         })
     },
 
-    getUserOrders = function (aUserId) {
+    getUserOrders : function (aUserId) {
         return new Promise( (resolve, reject) => {
             orderModel.find({user: aUserId},  (err, docs) => {
                 if (err) { reject('Erreur')}
@@ -20,7 +20,7 @@ let ProductController =
         })
     },
 
-    addOrder = function(productId, userId) {
+    addOrder : function(productId, userId) {
 
         //let data = { id: "3", name: "Produit 3", description: "produit 3", USD_price: 14, EUR_price: 14, file_link: 'file 3', creation_date: "12/12/2018", orders_counter: 14}
         let new_order = {

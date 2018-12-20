@@ -2,7 +2,7 @@ let productModel = require(`${__dirname}/model/product.js`);
 
 let ProductController = 
  {
-    getProducts = function () {
+    getProducts : function () {
         return new Promise( (resolve, reject) => {
             productModel.find({},  (err, docs) => {
                 if (err) { reject('Erreur')}
@@ -11,7 +11,7 @@ let ProductController =
         })
     },
     
-    orderProductById = function (searchId) {
+    orderProductById : function (searchId) {
         //let contentPackage = []
     
         return new Promise(function (resolve, reject) {
